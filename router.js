@@ -1,6 +1,6 @@
 const express = require('express')
 const { registerController, loginController } = require('./controller/userController')
-const { addBookController, getHomeBooksController, getAllBooksController } = require('./controller/bookController')
+const { addBookController, getHomeBooksController, getAllBooksController, getABookController } = require('./controller/bookController')
 const jwtMiddleware = require("./middlewares/jwtMiddleware")
 const multerConfig = require('./middlewares/imgMulterMiddleware')
 
@@ -19,5 +19,7 @@ router.get('/home-books', getHomeBooksController)
 router.post('/add-book', jwtMiddleware, multerConfig.array("uploadImages",3), addBookController )
 
 router.get('/all-books', jwtMiddleware, getAllBooksController)
+
+router.get('/view-books/:id',jwtMiddleware, getABookController)
 
 module.exports = router
