@@ -1,3 +1,4 @@
+const { json } = require("express");
 const users = require("../model/userModel");
 const jwt = require('jsonwebtoken')
 
@@ -53,6 +54,23 @@ exports.loginController = async (req,res)=>{
         res.status(500).json(error)
         
     }
+}
+
+exports.uploadUserProfileController = async (req,res)=>{
+    console.log('inside profile edit controller');
+    const{username,password,bio,role,profile} = req.body
+    const uploadProfile = req.file ? req.file.filename : profile
+    const email = req.payload
+
+    try {
+        const profileEdit = await users.findOneAndUpdate({email},{username,password,bio,role,profile:uploadProfile},{new:true})
+        res.status(200).json(profileEdit)
+        
+    } catch (error) {
+        res.status(500).json(error)
+        
+    }
+    
 }
 
 
