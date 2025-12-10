@@ -123,3 +123,38 @@ exports.purchaseBookController = async (req, res) => {
 
     }
 }
+
+//-------------------admin controllers---------------------
+
+//get all books for admin
+exports.getAllBooksAdminController = async (req, res) => {
+    console.log('inside get all books admin controller');
+    try {
+        const allBooks = await books.find()
+        res.status(200).json(allBooks)
+        
+    } catch (error) {
+        res.status(500).json(error)
+        
+    }
+}
+
+//update book status - approved
+exports.updateBookStatusAdminController = async (req, res)=>{
+    console.log('inside update book status controller');
+    const {id} = req.params
+    const updateData = { status: "approved"}
+    try {
+        const approvedBook = await books.findByIdAndUpdate({_id:id},updateData,{new:true})
+        res.status(200).json(approvedBook) 
+    } catch (error) {
+        res.status(500).json(error)
+        
+    }
+    
+}
+
+
+
+
+
