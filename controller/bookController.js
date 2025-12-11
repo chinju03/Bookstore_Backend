@@ -1,6 +1,8 @@
 const books = require("../model/bookModel");
 const { findById, findByIdAndDelete } = require("../model/userModel");
 const { all } = require("../router");
+const stripe = require('stripe')(process.env.StripeSecretKey);
+
 
 exports.addBookController = async (req, res) => {
     console.log("inside add book controller");
@@ -52,7 +54,7 @@ exports.getHomeBooksController = async (req, res) => {
 //get all books
 exports.getAllBooksController = async (req, res) => {
     console.log('inside all books controller');
-    const searchKey = req.query.search
+    const searchKey = req.query.search || ""
     const userMail = req.payload
 
     const query = {
@@ -132,28 +134,75 @@ exports.getAllBooksAdminController = async (req, res) => {
     try {
         const allBooks = await books.find()
         res.status(200).json(allBooks)
-        
+
     } catch (error) {
         res.status(500).json(error)
-        
+
     }
 }
 
 //update book status - approved
-exports.updateBookStatusAdminController = async (req, res)=>{
+exports.updateBookStatusAdminController = async (req, res) => {
     console.log('inside update book status controller');
-    const {id} = req.params
-    const updateData = { status: "approved"}
+    const { id } = req.params
+    const updateData = { status: "approved" }
     try {
-        const approvedBook = await books.findByIdAndUpdate({_id:id},updateData,{new:true})
-        res.status(200).json(approvedBook) 
+        const approvedBook = await books.findByIdAndUpdate({ _id: id }, updateData, { new: true })
+        res.status(200).json(approvedBook)
     } catch (error) {
         res.status(500).json(error)
-        
+
     }
-    
+
 }
 
+//book purchace controller 
+
+exports.makeBookPaymentController = async (req, res) => {
+    console.log('inside make book payment controller');
+    const {_id, title, author, noOfPages, imageUrl, price, dPrice, abstract, publisher, language, isbn, category, userMail, uploadImages } = req.body
+    const  email  = req.payload
+    console.log(email);
+    console.log(req.payload);
+    
+    
+
+    try {
+        const updateBookPayment = await books.findByIdAndUpdate( _id , { title, author, noOfPages, imageUrl, price, dPrice, abstract, publisher, language, isbn, category, status: "sold", boughtBy: email, userMail, uploadImages }, { new: true })
+        console.log(updateBookPayment);
+
+        const line_items = [{
+            price_data: {
+                currency: "usd",
+                product_data: {
+                    name: title,
+                    description: `${author} | ${publisher}`,
+                    images: [imageUrl],
+                    metadata: { title, author, noOfPages, imageUrl, price, dPrice, abstract, publisher, language, isbn, category, status: "sold", boughtBy: email, userMail }
+                },
+                unit_amount: Math.round(dPrice * 100),
+            },
+            quantity: 1
+
+        }]
+
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ["card"],
+            success_url: 'http://localhost:5173/payment-success',
+            cancel_url: 'http://localhost:5173/payment-error',
+            line_items,
+            mode: 'payment',
+        });
+        console.log(session);
+        res.status(200).json({ checkoutsessionurl: session.url })
+        // res.status(200).json('successfull')
+
+
+    } catch (error) {
+        res.status(500).json(error)
+
+    }
+}
 
 
 

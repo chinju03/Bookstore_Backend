@@ -1,6 +1,6 @@
 const express = require('express')
 const { registerController, loginController, uploadUserProfileController, getAllUsersAdminController, uploadAdminProfileController, googleloginController } = require('./controller/userController')
-const { addBookController, getHomeBooksController, getAllBooksController, getABookController, getStatusBookController, deleteUserAddedBookController, purchaseBookController, getAllBooksAdminController, updateBookStatusAdminController} = require('./controller/bookController')
+const { addBookController, getHomeBooksController, getAllBooksController, getABookController, getStatusBookController, deleteUserAddedBookController, purchaseBookController, getAllBooksAdminController, updateBookStatusAdminController, makeBookPaymentController} = require('./controller/bookController')
 const jwtMiddleware = require("./middlewares/jwtMiddleware")
 const multerConfig = require('./middlewares/imgMulterMiddleware')
 const adminjwtMiddleware = require('./middlewares/adminjwtMiddleware')
@@ -33,6 +33,9 @@ router.get('/user-brought-book',jwtMiddleware,purchaseBookController)
 
 router.put('/update-user-profile',jwtMiddleware, multerConfig.single("profile"), uploadUserProfileController)
 
+router.put('/make-payment', jwtMiddleware, makeBookPaymentController)
+
+
 //------------admin-----------
 
 router.get('/admin-allbooks',getAllBooksAdminController)
@@ -42,6 +45,7 @@ router.put('/update-book/:id', updateBookStatusAdminController)
 router.get('/admin-allusers',adminjwtMiddleware,getAllUsersAdminController)
 
 router.put('/update-admin-profile',adminjwtMiddleware, multerConfig.single("profile"), uploadAdminProfileController)
+
 
 
 module.exports = router
