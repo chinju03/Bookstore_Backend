@@ -30,7 +30,7 @@ bookstoreserver.use(router)
 bookstoreserver.use("/imguploads",express.static("./imguploads"))
 
 //3.create port
-const PORT = 3000
+const PORT = process.env.PORT || 3000
 
 //4. tell server to listen
 bookstoreserver.listen(PORT,()=>{
