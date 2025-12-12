@@ -43,7 +43,7 @@ exports.getHomeBooksController = async (req, res) => {
     console.log("inside get home book controller");
 
     try {
-        const homeBooks = await books.find().sort({ _id: -1 }).limit(4)
+        const homeBooks = await books.find({status:{$ne:"sold"}}).sort({ _id: -1 }).limit(4)
         res.status(200).json(homeBooks)
 
     } catch (error) {
@@ -56,11 +56,12 @@ exports.getAllBooksController = async (req, res) => {
     console.log('inside all books controller');
     const searchKey = req.query.search || ""
     const userMail = req.payload
+    const status = req.body
 
     const query = {
         title: { $regex: searchKey, $options: "i" },
-        userMail: { $ne: userMail }
-
+        userMail: { $ne: userMail },
+        status: {$ne: "sold"}
     }
     try {
         const allBooks = await books.find(query)
